@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🍪 Cookies requis</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0d0d0d;
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            position: relative;
+            user-select: none;
+        }
+
+        /* Overlay sombre */
+        #overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.8s ease;
+        }
+
+        #overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .badge {
+            position: fixed;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #00ff88;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px #00ff8866;
+            z-index: 1001;
+            background: #0d0d0dcc;
+            padding: 6px 18px;
+            border-radius: 20px;
+            border: 1px solid #00ff8844;
+        }
+
+        .cookie-card {
+            background: linear-gradient(145deg, #1a1a2e, #16213e);
+            border: 1px solid #00ff8844;
+            border-radius: 24px;
+            padding: 50px 40px 40px;
+            max-width: 460px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 40px #00ff8822;
+        }
+
+        .cookie-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+        }
+
+        .cookie-card h1 {
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #fff;
+        }
+
+        .cookie-card p {
+            color: #aaa;
+            font-size: 15px;
+            line-height: 1.6;
+            margin-bottom: 28px;
+        }
+
+        .cookie-card p strong {
+            color: #00ff88;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 14px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 14px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 140px;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-accept {
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            color: #0d0d0d;
+            box-shadow: 0 4px 20px #00ff8844;
+        }
+
+        .btn-accept:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 30px #00ff8866;
+        }
+
+        .btn-refuse {
+            background: transparent;
+            color: #ff4444;
+            border: 2px solid #ff4444;
+        }
+
+        .btn-refuse:hover {
+            background: #ff4444;
+            color: #fff;
+            transform: scale(1.05);
+        }
+
+        /* Lecteur vidéo caché */
+        #trap-video {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            width: 1px;
+            height: 1px;
+            opacity: 0;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Message piège */
+        #trap-message {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            z-index: 2000;
+            background: #0d0d0d;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        #trap-message.active {
+            display: flex;
+        }
+
+        #trap-message h2 {
+            font-size: 42px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #00ff88, #00cc6a);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900;
+        }
+
+        #trap-message .sub {
+            color: #888;
+            font-size: 16px;
+            font-family: 'Courier New', monospace;
+            margin-top: 10px;
+            animation: blink 1.2s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.2; }
+        }
+
+        #trap-message .funny {
+            margin-top: 30px;
+            color: #555;
+            font-size: 14px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Badge en haut -->
+    <div class="badge">⬡ SEARCHED BY K0RKOWW.BAT ⬡</div>
+
+    <!-- Overlay cookies -->
+    <div id="overlay">
+        <div class="cookie-card">
+            <div class="cookie-icon">🍪</div>
+            <h1>Ce site utilise des cookies</h1>
+            <p>
+                Nous utilisons des cookies pour améliorer votre expérience, 
+                analyser le trafic et vous offrir des publicités 
+                <strong>hautement personnalisées</strong>.<br><br>
+                En cliquant sur <strong>"Accepter"</strong> ou <strong>"Refuser"</strong>, 
+                vous consentez à l'utilisation de <strong>tous les cookies</strong> 
+                (oui, même Refuser. On s'en fiche).
+            </p>
+            <div class="btn-group">
+                <button class="btn btn-accept" id="btn-accept">✓ Accepter</button>
+                <button class="btn btn-refuse" id="btn-refuse">✗ Refuser</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lecteur audio/vidéo invisible -->
+    <video id="trap-video" preload="auto" loop playsinline>
+        <source src="https://samplelib.com/lib/preview/mp3/sample-15s.mp3" type="audio/mp3">
+    </video>
+
+    <!-- Écran piège après clic -->
+    <div id="trap-message">
+        <h2>🕹️ PIÉGÉ !</h2>
+        <p style="color:#ccc; font-size:20px; max-width:500px; margin-top:10px;">
+            Tu as cliqué. Maintenant tu écoutes.<br>
+            <span style="font-size:14px; color:#666;">(et tu peux pas partir 😈)</span>
+        </p>
+        <div class="sub">⏺ LECTURE EN COURS • NE QUITTE PAS</div>
+        <div class="funny">
+            "Le cookie mentait. Il n'y avait pas de consentement.<br>
+            Il y avait juste une danse."
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            const overlay   = document.getElementById('overlay');
+            const video     = document.getElementById('trap-video');
+            const trapMsg   = document.getElementById('trap-message');
+
+            // === Blocage clic droit ===
+            document.addEventListener('contextmenu', e => e.preventDefault());
+
+            // === Blocage des touches de fermeture ===
+            document.addEventListener('keydown', e => {
+                const keys = [
+                    'F11', 'Escape', 'F12', 'F5', 'F4',
+                    'F1', 'F2', 'F3', 'F6', 'F7', 'F8', 'F9', 'F10',
+                    'Tab', 'Alt', 'Meta'
+                ];
+                const ctrl = e.ctrlKey;
+                const alt  = e.altKey;
+
+                // Empêche Alt+F4, Ctrl+W, Ctrl+Q, Ctrl+R, F11, Escape, etc.
+                if (
+                    keys.includes(e.key) ||
+                    (ctrl && (e.key === 'w' || e.key === 'q' || e.key === 'r' || e.key === 'n' || e.key === 't')) ||
+                    (alt && e.key === 'F4') ||
+                    (ctrl && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C' || e.key === 'Q'))
+                ) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+            });
+
+            // === Blocage beforeunload (empêche de quitter/rafraîchir) ===
+            window.addEventListener('beforeunload', function(e) {
+                e.preventDefault();
+                e.returnValue = '';
+                return '';
+            });
+
+            // === Empêche la fermeture via l'API History ===
+            (function blockHistory() {
+                history.pushState(null, null, location.href);
+                window.addEventListener('popstate', function() {
+                    history.pushState(null, null, location.href);
+                });
+            })();
+
+            // === Plein écran forcé ===
+            function goFullscreen() {
+                const el = document.documentElement;
+                if (el.requestFullscreen) {
+                    el.requestFullscreen().catch(() => {});
+                } else if (el.webkitRequestFullscreen) {
+                    el.webkitRequestFullscreen();
+                } else if (el.msRequestFullscreen) {
+                    el.msRequestFullscreen();
+                }
+            }
+
+            // === Relance le plein écran s'il est quitté ===
+            document.addEventListener('fullscreenchange', () => {
+                if (!document.fullscreenElement) goFullscreen();
+            });
+            document.addEventListener('webkitfullscreenchange', () => {
+                if (!document.webkitFullscreenElement) goFullscreen();
+            });
+
+            // === Fonction piège : joue la vidéo et bloque tout ===
+            function triggerTrap() {
+                // Cache le cookie overlay
+                overlay.classList.add('hidden');
+
+                // Affiche l'écran piège
+                trapMsg.classList.add('active');
+
+                // Lance la vidéo/audio
+                video.play().catch(() => {
+                    // Si autoplay bloqué, on tente après un clic muet
+                    document.addEventListener('click', function playOnClick() {
+                        video.play().catch(() => {});
+                        document.removeEventListener('click', playOnClick);
+                    });
+                });
+
+                // Force le volume à fond
+                video.volume = 1.0;
+
+                // Passe en plein écran
+                setTimeout(goFullscreen, 300);
+
+                // Tente de verrouiller l'orientation (mobile)
+                try {
+                    if (screen.orientation && screen.orientation.lock) {
+                        screen.orientation.lock('landscape').catch(() => {});
+                    }
+                } catch(_) {}
+
+                // === Anti-fermeture : réinjecte l'état history en boucle ===
+                setInterval(() => {
+                    history.pushState(null, null, location.href);
+                }, 100);
+
+                // === Détection visibilité : si l'utilisateur change d'onglet, on rejoue + plein écran ===
+                document.addEventListener('visibilitychange', () => {
+                    if (document.hidden) {
+                        // Essaye de re-verrouiller
+                        setTimeout(() => {
+                            video.play().catch(() => {});
+                            goFullscreen();
+                        }, 50);
+                    } else {
+                        video.play().catch(() => {});
+                        goFullscreen();
+                    }
+                });
+
+                // === Bloque les clics ailleurs ===
+                document.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    video.play().catch(() => {});
+                    goFullscreen();
+                }, true);
+
+                // === Bloque le scroll ===
+                document.addEventListener('wheel', e => e.preventDefault(), { passive: false });
+                document.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
+
+                // === Rejoue si la vidéo s'arrête ===
+                video.addEventListener('ended', () => {
+                    video.play().catch(() => {});
+                });
+                video.addEventListener('pause', () => {
+                    video.play().catch(() => {});
+                });
+
+                // === Boucle de surveillance : son + fullscreen ===
+                setInterval(() => {
+                    video.play().catch(() => {});
+                    goFullscreen();
+                }, 2000);
+            }
+
+            // === Événements boutons ===
+            document.getElementById('btn-accept').addEventListener('click', (e) => {
+                e.stopPropagation();
+                triggerTrap();
+            });
+
+            document.getElementById('btn-refuse').addEventListener('click', (e) => {
+                e.stopPropagation();
+                triggerTrap();
+            });
+
+            // === Anti-sommeil : empêche le mode veille via Wake Lock API ===
+            try {
+                let wakeLock = null;
+                async function requestWakeLock() {
+                    try {
+                        if ('wakeLock' in navigator) {
+                            wakeLock = await navigator.wakeLock.request('screen');
+                            wakeLock.addEventListener('release', () => {
+                                // Essaye de le reprendre
+                                requestWakeLock();
+                            });
+                        }
+                    } catch(_) {}
+                }
+                // On le déclenchera après le piège
+                window._requestWakeLock = requestWakeLock;
+            } catch(_) {}
+
+            // Patch pour le Wake Lock après piège
+            const origTrigger = triggerTrap;
+            triggerTrap = function() {
+                origTrigger();
+                if (window._requestWakeLock) {
+                    setTimeout(window._requestWakeLock, 500);
+                }
+            };
+            window.triggerTrap = triggerTrap;
+
+            console.log('%c🍪 COOKIES ACTIVÉS', 'font-size:30px; color:#00ff88;');
+            console.log('%cTu veux fermer ? Bonne chance 😈', 'font-size:16px; color:#ff4444;');
+        })();
+    </script>
+</body>
+</html>
